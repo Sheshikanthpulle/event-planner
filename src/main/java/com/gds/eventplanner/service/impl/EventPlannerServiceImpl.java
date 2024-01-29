@@ -91,7 +91,7 @@ public class EventPlannerServiceImpl implements EventPlannerService {
 		// Finalizing the response randomly from all the responses on closing the session
 		if(statusChangeRequestDTO.getStatus().equals(Status.CLOSE)) {
 			List<EventUserResponse> eventUserResponses = eventUserResponseRepository.getAllUserResponsesByEventId(existingEvent)
-					.stream().collect(Collectors.toList());
+					.stream().filter(userRes -> userRes.getResponse() != null).collect(Collectors.toList());
 			if(eventUserResponses != null && eventUserResponses.size() > 0) {
 				finalizedResponse = eventUserResponses.get((int) ((Math.random() * (eventUserResponses.size())))).getResponse();
 			}

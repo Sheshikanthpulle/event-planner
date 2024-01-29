@@ -25,9 +25,9 @@ In total there are 4 REST APIs in this application
 
 - PUT <baseurl>/v1/event : Organizer will use this API to update the existing event session status - Open session / Close session
 
-- GET <baseurl>/v1/event/{eventId} : This API will get all the details of the event including all the responses the event received till that time
+- GET <baseurl>/v1/event/{eventId} : This API will get all the details of the event including all the responses the event received till that time. This will give flexibility to the user to check event details and other responses without joining the event
 
-- POST <baseurl>/v1/event/{eventId} : User will use this API to post his response to the perticular event in session time
+- POST <baseurl>/v1/event/{eventId} : User will use this API to join or respond to the perticular event in session time. Users can also join the event without recording their response within the session time.
 
 Complete API information including request and response object details are provided in the swagger.yaml file.
 
@@ -83,9 +83,9 @@ Solution description (How the application works)
 	
   - Reason behind the status change implementation is to give the organizer enough time to share the event id will all the customers offline before starting the session
  
- c) User will call GET <baseurl>/v1/event/{eventId} with the eventId shared by organizer to check the event details and also other user responses till that time.
+ c) User will call GET <baseurl>/v1/event/{eventId} with the eventId shared by organizer to check the event details and also other user responses till that time without joining the session anytime.
  
- d) After checking the details and other's responses the user will call POST <baseurl>/v1/event/{eventId} with his name, email and response to record.
+ d) After checking the details and other's responses the user will call POST <baseurl>/v1/event/{eventId} with his name, email to join the session. User is free to give response in the joining API without calling another API.
  
  e) Once the organizer feels that it is time to close the session he/she will call the same status change API called in step b with session status as 'CLOSE'
  
@@ -94,6 +94,14 @@ Solution description (How the application works)
    - The event with 'CLOSE' session status won't accept the responses from users.
 	
    - Organizer can reopen the event for the responses whenever he/she want to. All the events and responses will be stored in the database.
+
+*** User flow is explained in the use case diagram shared in this repo with "Usecase_Diagram.JPG"
+-------------------------
+Enhancement Opportunities
+-------------------------
+- In this system we will get the user count who attends the event with the user response count
+- We can analyze the user responses to provide ratings and reviews to the places
+- The solution can be enhanced to authorized user's by implementing authorization connecting with company user database via Single Sign On (SSO)
 
 ----------------------
 Alternative Solutions	

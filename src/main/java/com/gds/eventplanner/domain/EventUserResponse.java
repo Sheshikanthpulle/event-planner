@@ -48,7 +48,7 @@ public class EventUserResponse implements Serializable {
 	@Column(name = "USER_EMAIL", length = 100, nullable = false)
 	private String userEmail;
 	
-	@Column(name = "RESPONSE", length = 100, nullable = false)
+	@Column(name = "RESPONSE", length = 100, nullable = true)
 	private String response;
 	
 	@ManyToOne

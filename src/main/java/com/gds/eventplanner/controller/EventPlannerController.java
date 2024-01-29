@@ -160,9 +160,6 @@ public class EventPlannerController {
 		if (!StringUtils.hasLength(userResponseDTO.getUserEmail())) {
 			throw new CustomException(Constants.BAD_REQUEST, Constants.INVALID_USER_EMAIL, HttpStatus.BAD_REQUEST);
 		}
-		if (!StringUtils.hasLength(userResponseDTO.getResponse())) {
-			throw new CustomException(Constants.BAD_REQUEST, Constants.INVALID_RESPONSE, HttpStatus.BAD_REQUEST);
-		}
 
 		EventDTO eventDTO = this.eventPlannerService.recordUserResponse(userResponseDTO);
 		
