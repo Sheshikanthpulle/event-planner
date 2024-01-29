@@ -31,6 +31,8 @@ In total there are 4 REST APIs in this application
 
 Complete API information including request and response object details are provided in the swagger.yaml file.
 
+- All the API's will accept and produce Application/Json request and response types. 
+
 -------------------
 Setup Instructions
 -------------------
@@ -43,26 +45,26 @@ This application require maven and oracle database as pre-requisites.
 	Steps to create user in oracle database
 		1. alter session set "_ORACLE_SCRIPT"=true;
 		2. CREATE USER <user_name> IDENTIFIED BY <password>;
-		3. GRANT ALL PRIVILEGES TO <user_name>
+		3. GRANT ALL PRIVILEGES TO <user_name> 
 
 -----------------------
 Evnironmental variables
 -----------------------
 After installing oracle database need to create a user and import the DB_Schema.sql into the database by connecting to the user. Update the properties inside application.properties file with respective values 
 
-spring.datasource.url=<Replace this with your jdbc url. example "jdbc:oracle:thin:@localhost:1521:xe">
-spring.datasource.username=<user_name>
-spring.datasource.password=<password>
+	spring.datasource.url=<Replace this with your jdbc url. example "jdbc:oracle:thin:@localhost:1521:xe">
+	spring.datasource.username=<user_name>
+	spring.datasource.password=<password>
 
 --------
 Logging
 --------
 All the logs in the application including incoming requests and responses will be save into a file. Change the logging properties by updating the below environmental variables inside application.properties
 
-logging.file.path=/logs/
-logging.file.name=event-planner.log
-logging.level.org.springframework=INFO
-logging.pattern.console=%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n
+	logging.file.path=/logs/
+	logging.file.name=event-planner.log
+	logging.level.org.springframework=INFO
+	logging.pattern.console=%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n
 
 ---------------------
 Solution description (How the application works)
@@ -77,9 +79,9 @@ Solution description (How the application works)
    
  b) An event with 'NEW' status won't accept any responses from the user. The organizer will call an API (i.e PUT <baseurl>/v1/event) to change the session status to 'ACTIVE' with event secret, event id and session status as 'ACTIVE'.
 	
-	Now the event with 'ACTIVE' session status will start accepting the responses from the user.
+  - Now the event with 'ACTIVE' session status will start accepting the responses from the user.
 	
-	- Reason behind the status change implementation is to give the organizer enough time to share the event id will all the customers offline before starting the session
+  - Reason behind the status change implementation is to give the organizer enough time to share the event id will all the customers offline before starting the session
  
  c) User will call GET <baseurl>/v1/event/{eventId} with the eventId shared by organizer to check the event details and also other user responses till that time.
  
@@ -87,11 +89,11 @@ Solution description (How the application works)
  
  e) Once the organizer feels that it is time to close the session he/she will call the same status change API called in step b with session status as 'CLOSE'
  
-	As soon as the status change to close backend logic will pick a random response from all the responses and store it into the event table as finalized response.
+   - As soon as the status change to close backend logic will pick a random response from all the responses and store it into the event table as finalized response.
 	
-	The event with 'CLOSE' session status won't accept the responses from users.
+   - The event with 'CLOSE' session status won't accept the responses from users.
 	
-	Organizer can reopen the event for the responses whenever he/she want to. All the events and responses will be stored in the database.
+   - Organizer can reopen the event for the responses whenever he/she want to. All the events and responses will be stored in the database.
 
 ----------------------
 Alternative Solutions	
