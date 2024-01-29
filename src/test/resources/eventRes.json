@@ -1,0 +1,17 @@
+{
+    "eventId": 102,
+    "eventName": "lunch",
+    "organizerName": "John",
+    "sessionStatus": "ACTIVE",
+    "finalizedResponse": "best restaurant",
+    "responses": [
+        {
+            "userName": "Trey",
+            "response": null
+        },
+        {
+            "userName": "Trey",
+            "response": "best restaurant"
+        }
+    ]
+}
