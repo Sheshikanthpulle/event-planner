@@ -20,6 +20,7 @@ import com.gds.eventplanner.dto.StatusChangeRequestDTO;
 import com.gds.eventplanner.dto.UserResponseDTO;
 import com.gds.eventplanner.exception.CustomException;
 import com.gds.eventplanner.service.EventPlannerService;
+import com.gds.eventplanner.utils.Constants;
 
 /**
  * Rest controller call which holds the information about the REST api's exposed and API contracts will be declared here
@@ -51,22 +52,22 @@ public class EventPlannerController {
 	 * @param createEventRequestDTO
 	 * @return
 	 */
-	@PostMapping("/event")
+	@PostMapping(Constants.EVENT_PATH)
 	private ResponseEntity<CreateEventResponseDTO> createEvent(
 			@RequestBody CreateEventRequestDTO createEventRequestDTO) {
 		log.debug("Request to create an event in db : {}", createEventRequestDTO);
 		if (!StringUtils.hasLength(createEventRequestDTO.getEventName())) {
-			throw new CustomException("Bad Request", "Event name is mandatory", HttpStatus.BAD_REQUEST);
+			throw new CustomException(Constants.BAD_REQUEST, Constants.INVALID_EVENT_NAME, HttpStatus.BAD_REQUEST);
 		}
 		if (!StringUtils.hasLength(createEventRequestDTO.getOrganizerName())) {
-			throw new CustomException("Bad Request", "Organizer name is mandatory", HttpStatus.BAD_REQUEST);
+			throw new CustomException(Constants.BAD_REQUEST, Constants.INVALID_ORGANIZER_NAME, HttpStatus.BAD_REQUEST);
 		}
 		if (!StringUtils.hasLength(createEventRequestDTO.getOrganizerEmail())) {
-			throw new CustomException("Bad Request", "Organizer email is mandatory", HttpStatus.BAD_REQUEST);
+			throw new CustomException(Constants.BAD_REQUEST, Constants.INVALID_ORGANIZER_NAME, HttpStatus.BAD_REQUEST);
 		}
 		CreateEventResponseDTO createEventResponse = this.eventPlannerService.createEvent(createEventRequestDTO);
 		if (createEventResponse == null) {
-			throw new CustomException("Persistant Issue", "Unable to persist event data, Please try again",
+			throw new CustomException(Constants.PERSISTANCE_ISSUE, Constants.PERSISTANCE_MESSAGE,
 					HttpStatus.INTERNAL_SERVER_ERROR);
 
 		}
@@ -87,22 +88,22 @@ public class EventPlannerController {
 	 * @param statusChangeRequestDTO
 	 * @return
 	 */
-	@PutMapping("/event")
+	@PutMapping(Constants.EVENT_PATH)
 	private ResponseEntity<EventDTO> updateEventStatus(@RequestBody StatusChangeRequestDTO statusChangeRequestDTO) {
 		log.debug("Request to update an event status in db : {}", statusChangeRequestDTO);
 
 		if (statusChangeRequestDTO.getEventId() == null) {
-			throw new CustomException("Bad Request", "Event id is mandatory", HttpStatus.BAD_REQUEST);
+			throw new CustomException(Constants.BAD_REQUEST, Constants.INVALID_ID, HttpStatus.BAD_REQUEST);
 		}
 		if (statusChangeRequestDTO.getEventSecret() == null) {
-			throw new CustomException("Bad Request", "Event Secret id is mandatory", HttpStatus.BAD_REQUEST);
+			throw new CustomException(Constants.BAD_REQUEST, Constants.INVALID_EVENT_SECRET, HttpStatus.BAD_REQUEST);
 		}
 		if (statusChangeRequestDTO.getStatus() == null) {
-			throw new CustomException("Bad Request", "Status is mandatory", HttpStatus.BAD_REQUEST);
+			throw new CustomException(Constants.BAD_REQUEST, Constants.IVALID_SESSION_STATUS, HttpStatus.BAD_REQUEST);
 		}
 		EventDTO eventDTO = this.eventPlannerService.updateEventStatus(statusChangeRequestDTO);
 		if (eventDTO == null) {
-			throw new CustomException("Persistant Issue", "Unable to update event status, Please try again",
+			throw new CustomException(Constants.PERSISTANCE_ISSUE,Constants.PERSISTANCE_MESSAGE,
 					HttpStatus.INTERNAL_SERVER_ERROR);
 
 		}
@@ -119,15 +120,15 @@ public class EventPlannerController {
 	 * @param eventId
 	 * @return
 	 */
-	@GetMapping("/event/{eventId}")
+	@GetMapping(Constants.EVENT_WITH_PATH_PARAM)
 	private ResponseEntity<EventDTO> fetchEventDetails(@PathVariable(value = "eventId") final Long eventId) {
 		log.debug("Request to fetch an event details : {}", eventId);
 		if (eventId == null) {
-			throw new CustomException("Bad Request", "Event id is mandatory", HttpStatus.BAD_REQUEST);
+			throw new CustomException(Constants.BAD_REQUEST, Constants.INVALID_ID, HttpStatus.BAD_REQUEST);
 		}
 		EventDTO eventDTO = this.eventPlannerService.fetchEventDetails(eventId);
 		if (eventDTO == null) {
-			throw new CustomException("Persistant Issue", "Unable to fetch event details, Please try again",
+			throw new CustomException(Constants.BAD_REQUEST, Constants.PERSISTANCE_MESSAGE,
 					HttpStatus.INTERNAL_SERVER_ERROR);
 
 		}
@@ -144,29 +145,29 @@ public class EventPlannerController {
 	 * @param userResponseDTO
 	 * @return
 	 */
-	@PostMapping("/event/{eventId}")
+	@PostMapping(Constants.EVENT_WITH_PATH_PARAM)
 	private ResponseEntity<EventDTO> recordUserResponse(@PathVariable(value = "eventId") final Long eventId, @RequestBody UserResponseDTO userResponseDTO) {
 		log.debug("Request to record user response : {}", userResponseDTO);
 		if (eventId == null) {
-			throw new CustomException("Bad Request", "Event id is mandatory", HttpStatus.BAD_REQUEST);
+			throw new CustomException(Constants.BAD_REQUEST, Constants.INVALID_ID, HttpStatus.BAD_REQUEST);
 		}
 		if (userResponseDTO == null) {
-			throw new CustomException("Bad Request", "Please respond with your choice of location", HttpStatus.BAD_REQUEST);
+			throw new CustomException(Constants.BAD_REQUEST, Constants.INVALID_RESPONSE_OBJECT, HttpStatus.BAD_REQUEST);
 		}
 		if (!StringUtils.hasLength(userResponseDTO.getUserName())) {
-			throw new CustomException("Bad Request", "User name is mandatory", HttpStatus.BAD_REQUEST);
+			throw new CustomException(Constants.BAD_REQUEST, Constants.INVALID_USER_NAME, HttpStatus.BAD_REQUEST);
 		}
 		if (!StringUtils.hasLength(userResponseDTO.getUserEmail())) {
-			throw new CustomException("Bad Request", "User email is mandatory", HttpStatus.BAD_REQUEST);
+			throw new CustomException(Constants.BAD_REQUEST, Constants.INVALID_USER_EMAIL, HttpStatus.BAD_REQUEST);
 		}
 		if (!StringUtils.hasLength(userResponseDTO.getResponse())) {
-			throw new CustomException("Bad Request", "location is mandatory", HttpStatus.BAD_REQUEST);
+			throw new CustomException(Constants.BAD_REQUEST, Constants.INVALID_RESPONSE, HttpStatus.BAD_REQUEST);
 		}
 
 		EventDTO eventDTO = this.eventPlannerService.recordUserResponse(userResponseDTO);
 		
 		if (eventDTO == null) {
-			throw new CustomException("Persistant Issue", "Unable to record your response, Please try again",
+			throw new CustomException(Constants.PERSISTANCE_ISSUE, Constants.PERSISTANCE_MESSAGE,
 					HttpStatus.INTERNAL_SERVER_ERROR);
 
 		}

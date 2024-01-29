@@ -6,6 +6,7 @@ import java.util.Optional;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.gds.eventplanner.domain.Event;
 import com.gds.eventplanner.domain.EventUserResponse;
@@ -46,6 +47,7 @@ public class EventPlannerServiceImpl implements EventPlannerService {
 	 * 
 	 */
 	@Override
+	@Transactional
 	public CreateEventResponseDTO createEvent(CreateEventRequestDTO createEventRequestDTO) {
 		Event event = Event.builder()
 				.eventName(createEventRequestDTO.getEventName())
@@ -72,6 +74,7 @@ public class EventPlannerServiceImpl implements EventPlannerService {
 	 * 
 	 */
 	@Override
+	@Transactional
 	public EventDTO updateEventStatus(StatusChangeRequestDTO statusChangeRequestDTO) throws CustomException {
 		Optional<Event> existingEventOptn = eventRepository.findById(statusChangeRequestDTO.getEventId());
 		
@@ -122,6 +125,7 @@ public class EventPlannerServiceImpl implements EventPlannerService {
 	 * 
 	 */
 	@Override
+	@Transactional
 	public EventDTO fetchEventDetails(Long id) throws CustomException {
 		Optional<Event> existingEventOptn = eventRepository.findById(id);
 		
@@ -147,6 +151,7 @@ public class EventPlannerServiceImpl implements EventPlannerService {
 	 * 
 	 */
 	@Override
+	@Transactional
 	public EventDTO recordUserResponse(UserResponseDTO userResponseDTO) throws CustomException {
 		Optional<Event> existingEventOptn = eventRepository.findById(userResponseDTO.getEventId());
 		

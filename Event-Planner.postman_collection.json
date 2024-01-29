@@ -1,0 +1,118 @@
+{
+	"info": {
+		"_postman_id": "eb6a5d05-e5c7-432f-a0ef-3e350d966fc9",
+		"name": "Event-Planner",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "localhost:8000/v1/event",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"eventName\": \"lunch\",\r\n  \"organizerName\": \"John\",\r\n  \"organizerEmail\": \"John.doe@mail.com\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8000/v1/event",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"v1",
+						"event"
+					]
+				},
+				"description": "Request to create event"
+			},
+			"response": []
+		},
+		{
+			"name": "localhost:8000/v1/event",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"eventId\": 101,\r\n   \"eventSecret\": 8329,\r\n  \"status\": \"ACTIVE\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8000/v1/event",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"v1",
+						"event"
+					]
+				},
+				"description": "Request to change event session status"
+			},
+			"response": []
+		},
+		{
+			"name": "localhost:8000/v1/event/101",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8000/v1/event/101",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"v1",
+						"event",
+						"101"
+					]
+				},
+				"description": "Request to fetch event details with all the responses"
+			},
+			"response": []
+		},
+		{
+			"name": "localhost:8000/v1/event/101",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"eventId\": 101,\r\n  \"userName\": \"James\",\r\n  \"userEmail\": \"James.Trey@mail.com\",\r\n  \"response\": \"best restaurant\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8000/v1/event/101",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"v1",
+						"event",
+						"101"
+					]
+				},
+				"description": "Request to post user response"
+			},
+			"response": []
+		}
+	]
+}
