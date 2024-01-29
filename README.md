@@ -16,6 +16,7 @@ There 2 tables used in this application
 
 Please refer the ER Diagram to check the complete schema of the database
 
+![plot](./ER_Diagram.JPG)
 --------------
 API Contracts
 --------------
@@ -30,6 +31,8 @@ In total there are 4 REST APIs in this application
 - POST <baseurl>/v1/event/{eventId} : User will use this API to join or respond to the perticular event in session time. Users can also join the event without recording their response within the session time.
 
 Complete API information including request and response object details are provided in the swagger.yaml file.
+
+Postman Collection also added in this repo to make testing effortless.
 
 - All the API's will accept and produce Application/Json request and response types. 
 
@@ -69,6 +72,9 @@ All the logs in the application including incoming requests and responses will b
 ---------------------
 Solution description (How the application works)
 ---------------------
+
+![plot](./Usecase_Diagram.JPG)
+
  a) By calling create event API (i.e POST <baseurl>/v1/event) the organizer will create event inside the database with the details like event name, organizer name, organizer email
  
    Backend will create an event entry into event table with the organizer details as well as an auto generated event secret and Session status as 'NEW'
@@ -95,7 +101,6 @@ Solution description (How the application works)
 	
    - Organizer can reopen the event for the responses whenever he/she want to. All the events and responses will be stored in the database.
 
-*** User flow is explained in the use case diagram shared in this repo with "Usecase_Diagram.JPG"
 -------------------------
 Enhancement Opportunities
 -------------------------
