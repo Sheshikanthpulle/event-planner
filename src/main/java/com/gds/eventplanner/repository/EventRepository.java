@@ -1,6 +1,7 @@
 package com.gds.eventplanner.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 
 import com.gds.eventplanner.domain.Event;
@@ -13,6 +14,5 @@ import com.gds.eventplanner.domain.Event;
  *
  */
 @Repository
-public interface EventRepository extends JpaRepository<Event, Long> {
-
+public interface EventRepository extends JpaRepository<Event, Long>, JpaSpecificationExecutor<Event>  {
 }

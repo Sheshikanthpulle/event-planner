@@ -1,5 +1,7 @@
 package com.gds.eventplanner.controller;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
@@ -9,18 +11,20 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import com.gds.eventplanner.dto.CreateEventRequestDTO;
-import com.gds.eventplanner.dto.CreateEventResponseDTO;
-import com.gds.eventplanner.dto.EventDTO;
-import com.gds.eventplanner.dto.StatusChangeRequestDTO;
-import com.gds.eventplanner.dto.UserResponseDTO;
+import com.gds.eventplanner.dto.request.CreateEventRequestDTO;
+import com.gds.eventplanner.dto.request.JoinEventRequestDTO;
+import com.gds.eventplanner.dto.request.RecordUserResRequestDTO;
+import com.gds.eventplanner.dto.request.StatusChangeRequestDTO;
+import com.gds.eventplanner.dto.response.CreateEventResponseDTO;
+import com.gds.eventplanner.dto.response.EventResponseDTO;
 import com.gds.eventplanner.exception.CustomException;
 import com.gds.eventplanner.service.EventPlannerService;
 import com.gds.eventplanner.utils.Constants;
+
+import io.swagger.v3.oas.annotations.Operation;
 
 /**
  * Rest controller call which holds the information about the REST api's exposed and API contracts will be declared here
@@ -52,6 +56,7 @@ public class EventPlannerController {
 	 * @param createEventRequestDTO
 	 * @return
 	 */
+	@Operation(summary = "Create event api", description = "API to create event in database for organizer")
 	@PostMapping(Constants.EVENT_PATH)
 	private ResponseEntity<CreateEventResponseDTO> createEvent(
 			@RequestBody CreateEventRequestDTO createEventRequestDTO) {
@@ -88,8 +93,9 @@ public class EventPlannerController {
 	 * @param statusChangeRequestDTO
 	 * @return
 	 */
+	@Operation(summary = "Update event session status api", description = "API to start or stop the session by changing status")
 	@PutMapping(Constants.EVENT_PATH)
-	private ResponseEntity<EventDTO> updateEventStatus(@RequestBody StatusChangeRequestDTO statusChangeRequestDTO) {
+	private ResponseEntity<EventResponseDTO> updateEventStatus(@RequestBody StatusChangeRequestDTO statusChangeRequestDTO) {
 		log.debug("Request to update an event status in db : {}", statusChangeRequestDTO);
 
 		if (statusChangeRequestDTO.getEventId() == null) {
@@ -101,14 +107,14 @@ public class EventPlannerController {
 		if (statusChangeRequestDTO.getStatus() == null) {
 			throw new CustomException(Constants.BAD_REQUEST, Constants.IVALID_SESSION_STATUS, HttpStatus.BAD_REQUEST);
 		}
-		EventDTO eventDTO = this.eventPlannerService.updateEventStatus(statusChangeRequestDTO);
-		if (eventDTO == null) {
+		EventResponseDTO eventResponseDTO = this.eventPlannerService.updateEventStatus(statusChangeRequestDTO);
+		if (eventResponseDTO == null) {
 			throw new CustomException(Constants.PERSISTANCE_ISSUE,Constants.PERSISTANCE_MESSAGE,
 					HttpStatus.INTERNAL_SERVER_ERROR);
 
 		}
-		log.debug("Response to update an event status in db : {}", eventDTO);
-		return new ResponseEntity<EventDTO>(eventDTO, HttpStatus.OK);
+		log.debug("Response to update an event status in db : {}", eventResponseDTO);
+		return new ResponseEntity<EventResponseDTO>(eventResponseDTO, HttpStatus.OK);
 	}
 	
 
@@ -120,20 +126,24 @@ public class EventPlannerController {
 	 * @param eventId
 	 * @return
 	 */
+	@Operation(summary = "Get event details api", description = "API to get event details and available responses for organizer and joined users")
 	@GetMapping(Constants.EVENT_WITH_PATH_PARAM)
-	private ResponseEntity<EventDTO> fetchEventDetails(@PathVariable(value = "eventId") final Long eventId) {
+	private ResponseEntity<EventResponseDTO> fetchEventDetails(@PathVariable(value = "eventId") final Long eventId,@RequestParam(value = "emailId", required = false) final String emailId, @RequestParam(value = "eventSecret", required = false) final Long eventSecret) {
 		log.debug("Request to fetch an event details : {}", eventId);
 		if (eventId == null) {
 			throw new CustomException(Constants.BAD_REQUEST, Constants.INVALID_ID, HttpStatus.BAD_REQUEST);
 		}
-		EventDTO eventDTO = this.eventPlannerService.fetchEventDetails(eventId);
-		if (eventDTO == null) {
+		if (emailId == null && eventSecret == null) {
+			throw new CustomException(Constants.BAD_REQUEST, "Please provide user email or event secret to fetch the details", HttpStatus.BAD_REQUEST);
+		}
+		EventResponseDTO eventResponseDTO = this.eventPlannerService.fetchEventDetails(eventId, emailId, eventSecret);
+		if (eventResponseDTO == null) {
 			throw new CustomException(Constants.BAD_REQUEST, Constants.PERSISTANCE_MESSAGE,
 					HttpStatus.INTERNAL_SERVER_ERROR);
 
 		}
-		log.debug("Response to fetch an event details : {}", eventDTO);
-		return new ResponseEntity<EventDTO>(eventDTO, HttpStatus.OK);
+		log.debug("Response to fetch an event details : {}", eventResponseDTO);
+		return new ResponseEntity<EventResponseDTO>(eventResponseDTO, HttpStatus.OK);
 	}
 
 	/**
@@ -142,34 +152,62 @@ public class EventPlannerController {
 	 * User will call this API with his name, response and event id
 	 * 
 	 * @param eventId
-	 * @param userResponseDTO
+	 * @param joinEventRequestDTO
 	 * @return
 	 */
-	@PostMapping(Constants.EVENT_WITH_PATH_PARAM)
-	private ResponseEntity<EventDTO> recordUserResponse(@PathVariable(value = "eventId") final Long eventId, @RequestBody UserResponseDTO userResponseDTO) {
-		log.debug("Request to record user response : {}", userResponseDTO);
-		if (eventId == null) {
+	@Operation(summary = "Join event api", description = "API to join the event for users within the session")
+	@PostMapping(Constants.EVENT_JOINING_PATH)
+	private ResponseEntity<Long> recordUserResponse(@RequestBody JoinEventRequestDTO joinEventRequestDTO) {
+		log.debug("Request to join user to event : {}", joinEventRequestDTO);
+		if (joinEventRequestDTO.getEventId() == null) {
 			throw new CustomException(Constants.BAD_REQUEST, Constants.INVALID_ID, HttpStatus.BAD_REQUEST);
 		}
-		if (userResponseDTO == null) {
-			throw new CustomException(Constants.BAD_REQUEST, Constants.INVALID_RESPONSE_OBJECT, HttpStatus.BAD_REQUEST);
-		}
-		if (!StringUtils.hasLength(userResponseDTO.getUserName())) {
+		if (!StringUtils.hasLength(joinEventRequestDTO.getUserName())) {
 			throw new CustomException(Constants.BAD_REQUEST, Constants.INVALID_USER_NAME, HttpStatus.BAD_REQUEST);
 		}
-		if (!StringUtils.hasLength(userResponseDTO.getUserEmail())) {
+		if (!StringUtils.hasLength(joinEventRequestDTO.getUserEmail())) {
 			throw new CustomException(Constants.BAD_REQUEST, Constants.INVALID_USER_EMAIL, HttpStatus.BAD_REQUEST);
 		}
 
-		EventDTO eventDTO = this.eventPlannerService.recordUserResponse(userResponseDTO);
+		Long userJoiningId = this.eventPlannerService.joinUserToEvent(joinEventRequestDTO);
 		
-		if (eventDTO == null) {
+		if (userJoiningId == null) {
 			throw new CustomException(Constants.PERSISTANCE_ISSUE, Constants.PERSISTANCE_MESSAGE,
 					HttpStatus.INTERNAL_SERVER_ERROR);
 
 		}
-		log.debug("Response to record user response : {}", eventDTO);
-		return new ResponseEntity<EventDTO>(eventDTO, HttpStatus.OK);
+		log.debug("Response to record user response : {}", userJoiningId);
+		return new ResponseEntity<Long>(userJoiningId, HttpStatus.CREATED);
+	}
+	
+	/**
+	 * POST API with event id and user details to join the user to the session to record  the user's response
+	 * 
+	 * User will call this API with his name, response and event id
+	 * 
+	 * @param joinId
+	 * @param joinEventRequestDTO
+	 * @return
+	 */
+	@Operation(summary = "Response to event api", description = "API to respond to the event for users within the session")
+	@PutMapping(Constants.EVENT_USER_REPONSE_PATH)
+	private ResponseEntity<EventResponseDTO> joinUserToEvent(@PathVariable(value = "joinId") final Long joinId, @RequestBody RecordUserResRequestDTO recordUserResRequestDTO) {
+		log.debug("Request to record user response : {}", recordUserResRequestDTO);
+		if (recordUserResRequestDTO.getEventId() == null) {
+			throw new CustomException(Constants.BAD_REQUEST, Constants.INVALID_ID, HttpStatus.BAD_REQUEST);
+		}
+		if (!StringUtils.hasLength(recordUserResRequestDTO.getUserResponse())) {
+			throw new CustomException(Constants.BAD_REQUEST, Constants.INVALID_USER_NAME, HttpStatus.BAD_REQUEST);
+		}
+
+		EventResponseDTO event = this.eventPlannerService.recordUserResponse(joinId, recordUserResRequestDTO);
+		
+		if (event == null) {
+			throw new CustomException(Constants.PERSISTANCE_ISSUE, Constants.PERSISTANCE_MESSAGE,
+					HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		log.debug("Response to record user response : {}", event);
+		return new ResponseEntity<EventResponseDTO>(event, HttpStatus.OK);
 	}
 
 }

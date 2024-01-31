@@ -44,7 +44,7 @@ public class Event implements Serializable {
 	@Id
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "EventSeqGenerator")
 	@SequenceGenerator(name = "EventSeqGenerator", sequenceName = "EVENT_ID_SEQ", allocationSize = 1)
-	private Long eventId;
+	private Long id;
 	
 	@Column(name = "EVENT_NAME", length = 100, nullable = false)
 	private String eventName;
@@ -58,8 +58,8 @@ public class Event implements Serializable {
 	@Column(name = "EVENT_SECRET", nullable = false)
 	private Long eventSecret;
 	
-	@Column(name = "FINALIZED_RESPONSE", length = 100, nullable = true)
-	private String finalizedResponse;
+	@Column(name = "PICKED_RESPONSE", length = 100, nullable = true)
+	private String pickedResponse;
 	
 	@Column(name = "SESSION_STATUS", length = 10, nullable = false)
 	@Enumerated(EnumType.STRING)

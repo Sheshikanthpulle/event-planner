@@ -53,11 +53,20 @@ This application require maven and oracle database as pre-requisites.
 -----------------------
 Evnironmental variables
 -----------------------
-After installing oracle database need to create a user and import the DB_Schema.sql into the database by connecting to the user. Update the properties inside application.properties file with respective values 
+There are profile based properties files in the application. Currently "dev" profile is active and you can update spring.profiles.active property inside application.properties to activate other profile properties.
+	
+	ex: create application-prod.properties file with all the required params in resource directory and update spring.profiles.active = prod in application.properties for the production environment deployment. 
+
+After installing oracle database need to create a user and import the DB_Schema.sql into the database by connecting to the user. Update the properties inside application-dev.properties file with respective values 
 
 	spring.datasource.url=<Replace this with your jdbc url. example "jdbc:oracle:thin:@localhost:1521:xe">
 	spring.datasource.username=<user_name>
 	spring.datasource.password=<password>
+	
+-----------------------
+Running the application
+-----------------------
+There a file named run.sh in the repository home directory. Once setting up all the prerequisites and environmental variables double click the run.sh file to launch the application.
 
 --------
 Logging

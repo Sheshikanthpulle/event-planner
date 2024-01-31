@@ -9,6 +9,8 @@ public final class Constants {
 	// API path constants
 	public static final String EVENT_PATH = "/event";
 	public static final String EVENT_WITH_PATH_PARAM = "/event/{eventId}";
+	public static final String EVENT_JOINING_PATH = "/event/join";
+	public static final String EVENT_USER_REPONSE_PATH= "/event/join/{joinId}";
 	
 	// Exception message constants
 	public static final String BAD_REQUEST = "Bad Request";

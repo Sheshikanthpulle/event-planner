@@ -37,10 +37,10 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.gds.eventplanner.dto.CreateEventRequestDTO;
-import com.gds.eventplanner.dto.CreateEventResponseDTO;
-import com.gds.eventplanner.dto.EventDTO;
-import com.gds.eventplanner.dto.StatusChangeRequestDTO;
+import com.gds.eventplanner.dto.request.CreateEventRequestDTO;
+import com.gds.eventplanner.dto.request.StatusChangeRequestDTO;
+import com.gds.eventplanner.dto.response.CreateEventResponseDTO;
+import com.gds.eventplanner.dto.response.EventResponseDTO;
 import com.gds.eventplanner.exception.CustomException;
 import com.gds.eventplanner.service.EventPlannerService;
 import com.gds.eventplanner.utils.Constants;
@@ -109,11 +109,11 @@ public class EventPlannerControllerTest {
 
 	@Test
 	void updateEventStatusTest() throws JsonMappingException, JsonProcessingException, Exception {
-		EventDTO eventDTO = obj.readValue(getFile("classpath:eventRes.json"),
-				new TypeReference<EventDTO>() {
+		EventResponseDTO eventResponseDTO = obj.readValue(getFile("classpath:eventRes.json"),
+				new TypeReference<EventResponseDTO>() {
 				});
 
-		when(eventService.updateEventStatus(Mockito.any())).thenReturn(eventDTO);
+		when(eventService.updateEventStatus(Mockito.any())).thenReturn(eventResponseDTO);
 		RequestBuilder requestBuilder = MockMvcRequestBuilders.put("/v1/event")
 				.accept(MediaType.APPLICATION_JSON).content(getFile("classpath:updateStatusData.json"))
 				.contentType(MediaType.APPLICATION_JSON);
@@ -134,22 +134,6 @@ public class EventPlannerControllerTest {
 		this.mockMvc.perform(builder.accept(MediaType.APPLICATION_JSON_VALUE));
 		assertNotNull(HttpStatus.BAD_REQUEST);
 	}
-
-	@Test
-	void userResponseTest() throws JsonMappingException, JsonProcessingException, Exception {
-		EventDTO eventDTO = obj.readValue(getFile("classpath:eventRes.json"),
-				new TypeReference<EventDTO>() {
-				});
-
-		when(eventService.recordUserResponse(Mockito.any())).thenReturn(eventDTO);
-		RequestBuilder requestBuilder = MockMvcRequestBuilders.post("/v1/event/102")
-				.accept(MediaType.APPLICATION_JSON).content(getFile("classpath:userResponse.json"))
-				.contentType(MediaType.APPLICATION_JSON);
-		mockMvc.perform(requestBuilder).andDo(print())
-				.andExpect(content().json(getFile("classpath:eventRes.json")));
-		assertNotNull(HttpStatus.OK);
-
-	}
 	
 	@Test
 	void userResponseExceptionTest() throws Exception, JsonProcessingException, Exception {
@@ -166,10 +150,10 @@ public class EventPlannerControllerTest {
 	@Test
 	void fetchEventDetailsTest() throws JsonMappingException, JsonProcessingException, Exception {
 
-		EventDTO eventDTO = obj.readValue(getFile("classpath:eventRes.json"),
-				new TypeReference<EventDTO>() {
+		EventResponseDTO eventResponseDTO = obj.readValue(getFile("classpath:eventRes.json"),
+				new TypeReference<EventResponseDTO>() {
 				});
-		when(eventService.fetchEventDetails(Mockito.any())).thenReturn(eventDTO);
+		when(eventService.fetchEventDetails(Mockito.any(), Mockito.any(),Mockito.any())).thenReturn(eventResponseDTO);
 		MockHttpServletRequestBuilder builder = MockMvcRequestBuilders
 				.get("/v1/event/102").contentType(MediaType.APPLICATION_JSON);
 		this.mockMvc.perform(builder.accept(MediaType.APPLICATION_JSON_VALUE))
