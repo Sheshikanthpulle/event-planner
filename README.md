@@ -26,15 +26,29 @@ In total there are 4 REST APIs in this application
 
 - PUT <baseurl>/v1/event : Organizer will use this API to update the existing event session status - Open session / Close session
 
-- GET <baseurl>/v1/event/{eventId} : This API will get all the details of the event including all the responses the event received till that time. This will give flexibility to the user to check event details and other responses without joining the event
+- GET <baseurl>/v1/event/{eventId}?email=<>&secret=<>: This API will get all the details of the event including all the responses the event received till that time.
+	* Only users who joined the event can access event details and other responses by passing their email
+	* Organizer can access the details by passing event secret
 
-- POST <baseurl>/v1/event/{eventId} : User will use this API to join or respond to the perticular event in session time. Users can also join the event without recording their response within the session time.
+- POST <baseurl>/v1/event/join : this will be used by the user to join the event. After joining te event only user can access other responses or record his/her response to the event.
+	* The API reverts with joinId if it successfully join the user to the event. This joinId will be used by the user to record their response
 
+- PUT <baseurl>/v1/event/{joinId} : This API will be used by the user to record their response with respect to the join id and event id. User will pass the joinId in the path and evetId,response in the body for this API
 Complete API information including request and response object details are provided in the swagger.yaml file.
 
 Postman Collection also added in this repo to make testing effortless.
 
 - All the API's will accept and produce Application/Json request and response types. 
+
+----------------------
+Swagger Documentation
+----------------------
+The application integrated with swagger using springfox library. Everyone can access the swagger ui for this application after using the application. 
+		
+		To access the swagger UI open <base_url>/swagger-ui/index.html in the browser to check the swagger documentation and test the API using swagger
+			example url: http://localhost:8000/swagger-ui/index.html
+
+
 
 -------------------
 Setup Instructions
@@ -57,14 +71,34 @@ There are profile based properties files in the application. Currently "dev" pro
 	
 	ex: create application-prod.properties file with all the required params in resource directory and update spring.profiles.active = prod in application.properties for the production environment deployment. 
 
-After installing oracle database need to create a user and import the DB_Schema.sql into the database by connecting to the user. Update the properties inside application-dev.properties file with respective values 
+After update the properties inside application-dev.properties file with respective values of user created in your database
 
 	spring.datasource.url=<Replace this with your jdbc url. example "jdbc:oracle:thin:@localhost:1521:xe">
 	spring.datasource.username=<user_name>
 	spring.datasource.password=<password>
 	
+----------------------
+Liquibase Integration
+----------------------
+
+The application integrated with liquibase library which will help in schema migration and to create the schema in database when any schema changes.
+
+There is a file called liquibase.properties where env properties related to liquibase will be saved. Liquibase auto pick the properties file. This file has a propetry to locate the changelog file. To change the changelog file path we need to modify the following property in liquibase.properties
+			
+			spring.liquibase.change-log=classpath:/db/changelog/db.changelog-master.yaml
+
+This db.changelog-master.yaml file contains the schema file location like the following
+				
+				databaseChangeLog:
+					- include:
+						file: classpath:/db/changelog/changes/001-initial-schema.sql
+
+001-initial-schema.sql is the initial schema file to create schema in data base startup.
+
+ - With this feature we don't need to create the db schema explicitly while running the application and it also helps to maintain changelog when the schema has been changed.
+ 
 -----------------------
-Running the application
+Running the applicatio
 -----------------------
 There a file named run.sh in the repository home directory. Once setting up all the prerequisites and environmental variables double click the run.sh file to launch the application.
 
@@ -98,11 +132,19 @@ Solution description (How the application works)
 	
   - Reason behind the status change implementation is to give the organizer enough time to share the event id will all the customers offline before starting the session
  
- c) User will call GET <baseurl>/v1/event/{eventId} with the eventId shared by organizer to check the event details and also other user responses till that time without joining the session anytime.
- 
- d) After checking the details and other's responses the user will call POST <baseurl>/v1/event/{eventId} with his name, email to join the session. User is free to give response in the joining API without calling another API.
- 
- e) Once the organizer feels that it is time to close the session he/she will call the same status change API called in step b with session status as 'CLOSE'
+ c) User will call GET <baseurl>/v1/event/{eventId} with the eventId shared by organizer to check the event details after joining and also other user responses till that time.
+
+  - Those who have joined the event only can access the details of an event by passing event id in path and email as the query param
+  
+  - Also organizer can also access the event details and responses anytime by passign eventsecret and event id to this api
+  
+ d) The user will call POST <baseurl>/v1/event/join with his name, email to join the session. This API will return a joining id to the user to be used in recording their response.
+
+ e) The user will call PUT <baseurl>/v1/event/join/{joinId} to record their response to the event against join id. User who joined in the event previously only can record their response with joinid.
+
+  - User will pass eventId and user response in the body for this API
+
+ f) Once the organizer feels that it is time to close the session he/she will call the same status change API called in step b with session status as 'CLOSE'
  
    - As soon as the status change to close backend logic will pick a random response from all the responses and store it into the event table as finalized response.
 	
@@ -113,6 +155,8 @@ Solution description (How the application works)
 -------------------------
 Enhancement Opportunities
 -------------------------
+- To make the application generic, I didn't use any specific words like location or session in the application context.
+  * With this application can also be used in lottery system where users will join and provide their lottery number as response within the active period and the lottery number will be picked randomly when the session ends.
 - In this system we will get the user count who attends the event with the user response count
 - We can analyze the user responses to provide ratings and reviews to the places
 - The solution can be enhanced to authorized user's by implementing authorization connecting with company user database via Single Sign On (SSO)
