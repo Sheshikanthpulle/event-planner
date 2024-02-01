@@ -62,7 +62,7 @@ This application require maven and oracle database as pre-requisites.
 	Steps to create user in oracle database
 		1. alter session set "_ORACLE_SCRIPT"=true;
 		2. CREATE USER <user_name> IDENTIFIED BY <password>;
-		3. GRANT ALL PRIVILEGES TO <user_name> 
+		3. GRANT ALL PRIVILEGES TO <user_name>
 
 -----------------------
 Evnironmental variables
@@ -76,9 +76,36 @@ After update the properties inside application-dev.properties file with respecti
 	spring.datasource.url=<Replace this with your jdbc url. example "jdbc:oracle:thin:@localhost:1521:xe">
 	spring.datasource.username=<user_name>
 	spring.datasource.password=<password>
-	
+
+--------------------------
+Running Database in Docker
+--------------------------
+Another option to setup the database is Docker. This application contains docker-compose.yml file in it's root directory to run the oracle database in docker container. 
+
+To run the docker container we should have docker desktop setup installed in our local to do that one can follow this link for the instructions here https://docs.docker.com/desktop/
+
+To run the database with docker please follow these steps after installing docker desktop
+
+		1) Run the command in root directory path in this codebase
+
+				> docker-compose up
+
+				this command will download the dependancy of oracle xe from oracle container registry and start a container names oracle-db-service-container in docker
+
+		Instructions in the docker compose file will assign 'root' password to the default database in oracle
+
+		2) When running the database in docker the db environment variables should have some static values as followed
+
+				spring.datasource.url=jdbc:oracle:thin:@localhost:1521:xe
+				spring.datasource.username=system
+				spring.datasource.password=root
+
+	With these steps the database setup for our application will be completed
+
+** We still configure extracting the env's and running the application code also in the docker container. For the time being I have set up only database in docker.	 
+
 ----------------------
-Liquibase Integration
+Liquibase Integration (In either way using local or docker database this liquibase will be applied)
 ----------------------
 
 The application integrated with liquibase library which will help in schema migration and to create the schema in database when any schema changes.
