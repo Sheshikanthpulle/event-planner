@@ -125,7 +125,7 @@ This db.changelog-master.yaml file contains the schema file location like the fo
  - With this feature we don't need to create the db schema explicitly while running the application and it also helps to maintain changelog when the schema has been changed.
  
 -----------------------
-Running the applicatio
+Running the application
 -----------------------
 There a file named run.sh in the repository home directory. Once setting up all the prerequisites and environmental variables double click the run.sh file to launch the application.
 
