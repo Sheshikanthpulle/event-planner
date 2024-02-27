@@ -129,6 +129,8 @@ Running the application
 -----------------------
 There a file named run.sh in the repository home directory. Once setting up all the prerequisites and environmental variables double click the run.sh file to launch the application.
 
+** TO run the application in docker need run "docker compose up" command in project root directory. Then the application will create 2 containers in docker and run them. User can access the application on port '8000'
+
 --------
 Logging
 --------
